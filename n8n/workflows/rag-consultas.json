@@ -1,0 +1,194 @@
+{
+  "name": "RAG Consultas",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "rag-consulta",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "e6f9d342-aeea-41d8-a6d1-9cc89bdfcdbc",
+      "name": "Webhook Consulta",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        220,
+        300
+      ],
+      "webhookId": "9e5cba89-9e87-43c3-aebe-b924eaafd210"
+    },
+    {
+      "parameters": {
+        "model": "mistral:latest",
+        "options": {}
+      },
+      "id": "c1f1f0a2-2b6d-4952-b91c-8ffbd3264bfa",
+      "name": "Ollama Model",
+      "type": "@n8n/n8n-nodes-langchain.lmOllama",
+      "typeVersion": 1,
+      "position": [
+        460,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.body.pregunta }}",
+        "hasOutputParser": false
+      },
+      "id": "f8h2jf3p-0a9b-8c7d-6e5f-4g3h2i1j0k9l",
+      "name": "Generador Respuestas",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [
+        500,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "modelName": "mistral:latest"
+      },
+      "id": "d04a60b5-7c08-410a-8bf8-d21051dfcb2d",
+      "name": "Ollama Embeddings",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "typeVersion": 1,
+      "position": [
+        600,
+        660
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "q1w2e3r4-t5y6-u7i8-o9p0-a1s2d3f4g5h6",
+      "name": "Buscador Info",
+      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+      "typeVersion": 1,
+      "position": [
+        680,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO consultas_rag (pregunta, respuesta) VALUES ($1, $2) RETURNING id;",
+        "options": {
+          "queryParameters": "={{ $('Webhook Consulta').item.json.body.pregunta }}, {{ $json.text }}"
+        }
+      },
+      "id": "b3e34b99-92b0-45c1-84dc-6ba9dcedb9d1",
+      "name": "PostgreSQL Guarda Historial",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.2,
+      "position": [
+        800,
+        300
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "postgres-local",
+          "name": "Postgres Local"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "collectionName": "default"
+      },
+      "id": "z9x8c7v6-b5n4-m3l2-k1j0-h9g8f7d6s5a4",
+      "name": "Qdrant Vector Store",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "typeVersion": 1,
+      "position": [
+        640,
+        640
+      ],
+      "credentials": {
+        "qdrantApi": {
+          "id": "qdrant-local",
+          "name": "Qdrant Local"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook Consulta": {
+      "main": [
+        [
+          {
+            "node": "Generador Respuestas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generador Respuestas": {
+      "main": [
+        [
+          {
+            "node": "PostgreSQL Guarda Historial",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generador Respuestas",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscador Info": {
+      "ai_tool": [
+        [
+          {
+            "node": "Generador Respuestas",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qdrant Vector Store": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "Buscador Info",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Embeddings": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f0fe1e5c-755d-4f18-a681-3c5b8b9ca212",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "id": "aax52eueyE21N0O7",
+  "tags": []
+}

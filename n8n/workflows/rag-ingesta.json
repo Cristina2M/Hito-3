@@ -1,0 +1,219 @@
+{
+  "name": "RAG Ingesta de Documentos",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "rag-ingesta",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "e6f9d342-aeea-41d8-a6d1-9cc89bdfcdbc",
+      "name": "Webhook Ingesta",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        220,
+        300
+      ],
+      "webhookId": "9e5cba89-9e87-43c3-aebe-b924eaafd225"
+    },
+    {
+      "parameters": {
+        "model": "mistral:latest",
+        "options": {}
+      },
+      "id": "c1f1f0a2-2b6d-4952-b91c-8ffbd3264bfa",
+      "name": "Ollama Model",
+      "type": "@n8n/n8n-nodes-langchain.lmOllama",
+      "typeVersion": 1,
+      "position": [
+        900,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "options": {}
+      },
+      "id": "e96c6414-b81b-4fd6-95f7-f0eb6841398c",
+      "name": "Qdrant Vector Store",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "typeVersion": 1,
+      "position": [
+        800,
+        300
+      ],
+      "credentials": {
+        "qdrantApi": {
+          "id": "qdrant-local",
+          "name": "Qdrant Local"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "mistral:latest"
+      },
+      "id": "d04a60b5-7c08-410a-8bf8-d21051dfcb2d",
+      "name": "Ollama Embeddings",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "typeVersion": 1,
+      "position": [
+        800,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO documentos (nombre, ruta_archivo, num_chunks, fecha_procesado) VALUES ($1, $2, $3, NOW()) RETURNING id;",
+        "options": {
+          "queryParameters": "={{ $json.body.nombre_documento }}, {{ $json.body.nombre_documento }}, 1"
+        }
+      },
+      "id": "b3e34b99-92b0-45c1-84dc-6ba9dcedb9d1",
+      "name": "PostgreSQL Guarda Metadata",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.2,
+      "position": [
+        1060,
+        300
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "postgres-local",
+          "name": "Postgres Local"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chunkSize": 500,
+        "chunkOverlap": 50
+      },
+      "id": "aa150a01-b3b3-4f93-80f4-522194d2f0eb",
+      "name": "Recursive Character Text Splitter",
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        560,
+        460
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "f5127d14-b8eb-4eec-b5c3-a30e8c4e4b52",
+      "name": "Default Data Loader",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1,
+      "position": [
+        560,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "status",
+              "value": "Ingesta a Qdrant completada y metadata en Postgres creada!"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2eaf2ed2-e30d-4bed-8149-dd32ff98006b",
+      "name": "Respuesta Exitosa",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1280,
+        300
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook Ingesta": {
+      "main": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "main": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qdrant Vector Store": {
+      "main": [
+        [
+          {
+            "node": "PostgreSQL Guarda Metadata",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PostgreSQL Guarda Metadata": {
+      "main": [
+        [
+          {
+            "node": "Respuesta Exitosa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Embeddings": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f0fe1e5c-755d-4f18-a681-3c5b8b9cb026",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "id": "xax52eueyE21N0O7",
+  "tags": []
+}

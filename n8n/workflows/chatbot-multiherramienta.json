@@ -1,0 +1,390 @@
+{
+  "name": "Chatbot Multiherramienta",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "chatbot",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "1c7ef001-f25f-4a39-9d0b-6d1234567890",
+      "name": "Webhook Chatbot",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        200,
+        400
+      ],
+      "webhookId": "cb323da9-b4b3-4f9a-8e27-5d5b7a1c9e8d"
+    },
+    {
+      "parameters": {
+        "prompt": "Analiza la siguiente pregunta del usuario y decide a qué categoría pertenece.\nResponde ÚNICAMENTE con una de las siguientes palabras:\n- CLIMA (si pregunta por el tiempo, temperatura, lluvia)\n- PAIS (si pregunta datos sobre un país o nación)\n- WIKI (si pregunta sobre historia, biografías, conceptos generales)\n- CHISTE (si pide un chiste o broma)\n- GENERAL (para cualquier otra cosa)\n\nPregunta: {{$json.body.mensaje}}\n",
+        "options": {}
+      },
+      "id": "2d8fgh02-1a2b-3c4d-5e6f-7g8h9i0j1k2l",
+      "name": "Analizador de Intención (Ollama)",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [
+        460,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "model": "mistral:latest",
+        "options": {}
+      },
+      "id": "3e9ijk03-2b3c-4d5e-6f7g-8h9i0j1k2l3m",
+      "name": "Ollama Model",
+      "type": "@n8n/n8n-nodes-langchain.lmOllama",
+      "typeVersion": 1,
+      "position": [
+        420,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json.text.trim().toUpperCase() }}",
+        "rules": {
+          "rules": [
+            {
+              "value2": "CLIMA"
+            },
+            {
+              "value2": "PAIS",
+              "output": 1
+            },
+            {
+              "value2": "WIKI",
+              "output": 2
+            },
+            {
+              "value2": "CHISTE",
+              "output": 3
+            }
+          ]
+        },
+        "fallbackOutput": 4
+      },
+      "id": "4f0klm04-3c4d-5e6f-7g8h-9i0j1k2l3m4n",
+      "name": "Switch Categoría",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        720,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.open-meteo.com/v1/forecast",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "latitude",
+              "value": "40.4168"
+            },
+            {
+              "name": "longitude",
+              "value": "-3.7038"
+            },
+            {
+              "name": "current",
+              "value": "temperature_2m,precipitation"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5g1nop05-4d5e-6f7g-8h9i-0j1k2l3m4n5o",
+      "name": "API Clima (Madrid)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        980,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://restcountries.com/v3.1/name/spain",
+        "options": {}
+      },
+      "id": "6h2qrs06-5e6f-7g8h-9i0j-1k2l3m4n5o6p",
+      "name": "API Países (España)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        980,
+        260
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://es.wikipedia.org/api/rest_v1/page/summary/Inteligencia_artificial",
+        "options": {}
+      },
+      "id": "7i3tuv07-6f7g-8h9i-0j1k-2l3m4n5o6p7q",
+      "name": "API Wikipedia",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        980,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://v2.jokeapi.dev/joke/Programming?lang=es&type=single",
+        "options": {}
+      },
+      "id": "8j4wxy08-7g8h-9i0j-1k2l-3m4n5o6p7q8r",
+      "name": "API Chistes",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        980,
+        580
+      ]
+    },
+    {
+      "parameters": {
+        "prompt": "={{$('Webhook Chatbot').item.json.body.mensaje}}",
+        "options": {}
+      },
+      "id": "9k5zab09-8h9i-0j1k-2l3m-4n5o6p7q8r9s",
+      "name": "Respuesta General (Ollama)",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [
+        980,
+        760
+      ]
+    },
+    {
+      "parameters": {
+        "prompt": "El usuario preguntó: \"{{ $('Webhook Chatbot').item.json.body.mensaje }}\"\n\nHe obtenido estos datos de una API externa:\n{{ JSON.stringify($json) }}\n\nGenera una respuesta natural, conversacional y amigable en español utilizando estos datos. No menciones la API ni el JSON, actúa como si lo supieras tú. Si los datos están vacíos o hay un error, discúlpate.",
+        "options": {}
+      },
+      "id": "0l6bcd00-9i0j-1k2l-3m4n-5o6p7q8r9s0t",
+      "name": "Generador de Respuestas Naturales",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [
+        1240,
+        340
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "q1w2e3r4-t5y6-u7i8-o9p0-a1s2d3f4g5h7",
+      "name": "Merge Nodo",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [
+        1460,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO historial_chatbot (pregunta, intencion_detectada, herramienta_usada, respuesta_generada) VALUES ($1, $2, $3, $4) RETURNING id;",
+        "options": {
+          "queryParameters": "={{ $('Webhook Chatbot').item.json.body.mensaje }}, {{ $('Analizador de Intención (Ollama)').item.json.text }}, API_y_Ollama, {{ $json.text || $json.text }}"
+        }
+      },
+      "id": "1m7efg01-0j1k-2l3m-4n5o-6p7q8r9s0t1u",
+      "name": "PostgreSQL Historial Chatbot",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.2,
+      "position": [
+        1680,
+        440
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "postgres-local",
+          "name": "Postgres Local"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook Chatbot": {
+      "main": [
+        [
+          {
+            "node": "Analizador de Intención (Ollama)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Analizador de Intención (Ollama)",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Respuesta General (Ollama)",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Generador de Respuestas Naturales",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analizador de Intención (Ollama)": {
+      "main": [
+        [
+          {
+            "node": "Switch Categoría",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch Categoría": {
+      "main": [
+        [
+          {
+            "node": "API Clima (Madrid)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "API Países (España)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "API Wikipedia",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "API Chistes",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respuesta General (Ollama)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API Clima (Madrid)": {
+      "main": [
+        [
+          {
+            "node": "Generador de Respuestas Naturales",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API Países (España)": {
+      "main": [
+        [
+          {
+            "node": "Generador de Respuestas Naturales",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API Wikipedia": {
+      "main": [
+        [
+          {
+            "node": "Generador de Respuestas Naturales",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API Chistes": {
+      "main": [
+        [
+          {
+            "node": "Generador de Respuestas Naturales",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generador de Respuestas Naturales": {
+      "main": [
+        [
+          {
+            "node": "Merge Nodo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respuesta General (Ollama)": {
+      "main": [
+        [
+          {
+            "node": "Merge Nodo",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Nodo": {
+      "main": [
+        [
+          {
+            "node": "PostgreSQL Historial Chatbot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "g2hi3k4l-5m6n-7o8p-9q0r-1s2t3u4v5w6x",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "id": "bbx82eueyF32M1P8",
+  "tags": []
+}

@@ -1,0 +1,81 @@
+### PRUEBAS HITO 3: Automatización Inteligente con n8n
+# Para usar con la extensión "REST Client" de VS Code
+
+@n8n_webhook_url = http://localhost:5678/webhook
+
+### =========================================================================
+### PROYECTO A: SISTEMA RAG EDUCATIVO
+### =========================================================================
+
+### 1. Ingesta de Documentos (Webhook GET - Simulación simple para pruebas sin archivo)
+# Se usaría POST con multipart/form-data en producción, pero para la demostración
+# podemos enviar un texto plano para automatizar la extracción y chunking
+POST {{n8n_webhook_url}}/rag-ingesta
+Content-Type: application/json
+
+{
+  "nombre_documento": "Guia_Inteligencia_Artificial.txt",
+  "contenido_texto": "La Inteligencia Artificial (IA) es un campo de la informática que se enfoca en crear sistemas capaces de realizar tareas que normalmente requieren inteligencia humana. El Aprendizaje Automático (Machine Learning) es una rama de la IA que permite a los sistemas aprender de los datos. Las Redes Neuronales son sistemas de aprendizaje automático inspirados en el cerebro humano. Los modelos de lenguaje como GPT-4 o Mistral son ejemplos de IA generativa capaces de entender y generar texto con fluidez. La Retrieval-Augmented Generation (RAG) mejora los modelos de lenguaje conectándolos a bases de conocimiento externas, permitiendo responder con información precisa y actualizada sin necesidad de reentrenar el modelo."
+}
+
+### 
+
+### 2. Consultas RAG
+POST {{n8n_webhook_url}}/rag-consulta
+Content-Type: application/json
+
+{
+  "pregunta": "¿Qué es la Inteligencia Artificial y qué es RAG?"
+}
+
+### =========================================================================
+### PROYECTO B: CHATBOT MULTIHERRAMIENTA
+### =========================================================================
+
+### 1. Prueba de Chatbot - Intención: Clima
+POST {{n8n_webhook_url}}/chatbot
+Content-Type: application/json
+
+{
+  "mensaje": "¿Qué tiempo hace hoy en Madrid?"
+}
+
+### 
+
+### 2. Prueba de Chatbot - Intención: País (REST Countries)
+POST {{n8n_webhook_url}}/chatbot
+Content-Type: application/json
+
+{
+  "mensaje": "Dime información sobre España, ¿cuál es su capital y qué idioma hablan?"
+}
+
+### 
+
+### 3. Prueba de Chatbot - Intención: Wikipedia
+POST {{n8n_webhook_url}}/chatbot
+Content-Type: application/json
+
+{
+  "mensaje": "¿Quién fue Alan Turing?"
+}
+
+### 
+
+### 4. Prueba de Chatbot - Intención: Chiste
+POST {{n8n_webhook_url}}/chatbot
+Content-Type: application/json
+
+{
+  "mensaje": "Cuéntame un chiste de programadores"
+}
+
+### 
+
+### 5. Prueba de Chatbot - Intención: General (Ollama Directo)
+POST {{n8n_webhook_url}}/chatbot
+Content-Type: application/json
+
+{
+  "mensaje": "¿Cuáles son los 3 principios de la programación orientada a objetos explícalo muy brevemente?"
+}
