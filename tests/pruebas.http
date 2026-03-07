@@ -1,6 +1,8 @@
 ### PRUEBAS HITO 3: Automatización Inteligente con n8n
-# Para usar con la extensión "REST Client" de VS Code
+# OJO: Para usar esto hay que instalar la extensión "REST Client" en VS Code
+# Así no me hace falta abrir Postman para grabar el vídeo de la demo
 
+# Guardo la URL del webhook de mi n8n local en una variable para no repetirla en cada bloque
 @n8n_webhook_url = http://localhost:5678/webhook
 
 ### =========================================================================
@@ -8,13 +10,14 @@
 ### =========================================================================
 
 ### 1. Ingesta de Documentos (Webhook GET - Simulación simple para pruebas sin archivo)
-# Se usaría POST con multipart/form-data en producción, pero para la demostración
-# podemos enviar un texto plano para automatizar la extracción y chunking
+# En un caso real usaría un POST con form-data para subir el PDF de verdad,
+# pero para la demo he preparado este JSON con el texto plano directo, así
+# es mucho más rápido probar que el chunking y Ollama funcionan bien.
 POST {{n8n_webhook_url}}/rag-ingesta
 Content-Type: application/json
 
 {
-  "nombre_documento": "Guia_Inteligencia_Artificial.txt",
+  "nombre_documento": "Guia_IA_Demo.txt",
   "contenido_texto": "La Inteligencia Artificial (IA) es un campo de la informática que se enfoca en crear sistemas capaces de realizar tareas que normalmente requieren inteligencia humana. El Aprendizaje Automático (Machine Learning) es una rama de la IA que permite a los sistemas aprender de los datos. Las Redes Neuronales son sistemas de aprendizaje automático inspirados en el cerebro humano. Los modelos de lenguaje como GPT-4 o Mistral son ejemplos de IA generativa capaces de entender y generar texto con fluidez. La Retrieval-Augmented Generation (RAG) mejora los modelos de lenguaje conectándolos a bases de conocimiento externas, permitiendo responder con información precisa y actualizada sin necesidad de reentrenar el modelo."
 }
 
@@ -62,7 +65,8 @@ Content-Type: application/json
 
 ### 
 
-### 4. Prueba de Chatbot - Intención: Chiste
+### 4. Prueba de Chatbot - Intención: Chiste (JokeAPI)
+# Le pido un chiste de programadores en español
 POST {{n8n_webhook_url}}/chatbot
 Content-Type: application/json
 
@@ -73,6 +77,8 @@ Content-Type: application/json
 ### 
 
 ### 5. Prueba de Chatbot - Intención: General (Ollama Directo)
+# Prueba de fallback general, si no es ni clima, ni país, ni wiki ni chiste, 
+# se lo paso a Ollama como un chatbot normal
 POST {{n8n_webhook_url}}/chatbot
 Content-Type: application/json
 

@@ -1,6 +1,7 @@
 version: '3.8'
 
 services:
+  # Base de datos relacional para guardar mi historial y los metadatos de los PDFs
   postgres:
     image: postgres:15
     container_name: postgres
@@ -20,6 +21,7 @@ services:
       timeout: 5s
       retries: 5
 
+  # n8n: El orquestador visual principal donde he montado los workflows
   n8n:
     image: n8nio/n8n:latest
     container_name: n8n
@@ -41,6 +43,7 @@ services:
       postgres:
         condition: service_healthy
 
+  # Base de datos vectorial para los embeddings (el proyecto RAG)
   qdrant:
     image: qdrant/qdrant:latest
     container_name: qdrant
@@ -51,6 +54,7 @@ services:
     volumes:
       - qdrant_data:/qdrant/storage
 
+  # Ollama corriendo en local, OJO: hay que hacer pull del modelo 'mistral' a mano luego
   ollama:
     image: ollama/ollama:latest
     container_name: ollama
@@ -61,6 +65,8 @@ services:
       - ollama_data:/root/.ollama
 
 volumes:
+  # Dejo los volúmenes configurados para que no se borren 
+  # las configuraciones ni la BD si reinicio el PC
   postgres_data:
   n8n_data:
   qdrant_data:
