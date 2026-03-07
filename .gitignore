@@ -1,0 +1,27 @@
+# Archivos de entorno
+.env
+
+# Archivos de logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Docker
+docker/data/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# n8n
+.n8n
+
+# Bases de datos temporales (si hubiera)
+*.sqlite
+*.db
