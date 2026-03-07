@@ -34,7 +34,9 @@
     {
       "parameters": {
         "model": "mistral:latest",
-        "options": {}
+        "options": {
+          "baseUrl": "http://ollama:11434"
+        }
       },
       "id": "3e9ijk03-2b3c-4d5e-6f7g-8h9i0j1k2l3m",
       "name": "Ollama Model",
@@ -196,7 +198,7 @@
         "operation": "executeQuery",
         "query": "INSERT INTO historial_chatbot (pregunta, intencion_detectada, herramienta_usada, respuesta_generada) VALUES ($1, $2, $3, $4) RETURNING id;",
         "options": {
-          "queryParameters": "={{ $('Webhook Chatbot').item.json.body.mensaje }}, {{ $('Analizador de Intención (Ollama)').item.json.text }}, API_y_Ollama, {{ $json.text || $json.text }}"
+          "queryParameters": "={{ $('Webhook Chatbot').item.json.body.mensaje }}, {{ $('Analizador de Intención (Ollama)').item.json.text }}, API_y_Ollama, {{ $json.text }}"
         }
       },
       "id": "1m7efg01-0j1k-2l3m-4n5o-6p7q8r9s0t1u",

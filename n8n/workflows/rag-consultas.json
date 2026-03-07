@@ -20,7 +20,9 @@
     {
       "parameters": {
         "model": "mistral:latest",
-        "options": {}
+        "options": {
+          "baseUrl": "http://ollama:11434"
+        }
       },
       "id": "c1f1f0a2-2b6d-4952-b91c-8ffbd3264bfa",
       "name": "Ollama Model",
@@ -47,7 +49,10 @@
     },
     {
       "parameters": {
-        "modelName": "mistral:latest"
+        "modelName": "mistral:latest",
+        "options": {
+          "baseUrl": "http://ollama:11434"
+        }
       },
       "id": "d04a60b5-7c08-410a-8bf8-d21051dfcb2d",
       "name": "Ollama Embeddings",
