@@ -143,7 +143,16 @@
     },
     {
       "parameters": {
-        "url": "https://es.wikipedia.org/api/rest_v1/page/summary/Inteligencia_artificial",
+        "url": "=https://es.wikipedia.org/api/rest_v1/page/summary/{{ $node[\"Webhook Chatbot\"].json.body.mensaje.replace(/[¿?]/g, '').replace('Quién fue ', '').replace('quien fue ', '').replace('qué es ', '').replace('que es ', '').trim().replace(/\\s+/g, '_') }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0"
+            }
+          ]
+        },
         "options": {}
       },
       "id": "72a9bdc7-7ab1-4924-8e37-19356386f3d0",
@@ -406,12 +415,12 @@
       ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
     "executionOrder": "v1",
     "availableInMCP": false
   },
-  "versionId": "851e76f7-0008-472c-8ca0-5b57464d9367",
+  "versionId": "a65ed4f7-43eb-4f78-abf6-4d63c093767a",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "2b0ba9517386fc065badce01d4f7ee958c3a2569e89f1d74e255e51b90465088"
