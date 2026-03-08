@@ -3,32 +3,38 @@
 Este archivo contiene un borrador/guion sugerido para la grabación del vídeo final de 4 a 6 minutos, cumpliendo con los requisitos obligatorios de la rúbrica.
 
 ## 1. Introducción (30 seg)
-* **Acción:** Mostrar la pantalla con el README.md o el entorno de n8n.
-* **Guion:** "Hola, mi nombre es [Tu Nombre] y este es mi proyecto final para el Hito 3 de Desarrollo de Agentes IA para la Web. He implementado tanto el Sistema RAG como el Chatbot Multiherramienta."
+Qué decir: "Hola, soy [Tu Nombre] y voy a presentar mi proyecto del Hito 3. He desarrollado un sistema RAG para consultar documentos y un Chatbot que usa APIs externas, todo orquestado con n8n y ejecutándose localmente con Docker y Ollama."
 
-## 2. Arquitectura (1 min)
-* **Acción:** Mostrar el `docker-compose.yml` y explicar muy rápidamente los 4 servicios.
-* **Guion:** "La arquitectura se basa en Docker Compose. Tenemos n8n como orquestador visual, Ollama ejecutando el modelo Mistral localmente, Qdrant como base de datos vectorial para los embeddings del RAG, y PostgreSQL para guardar el historial y los metadatos."
+## 2. Arquitectura y Stack (45 seg)
+Qué mostrar: El archivo docker-compose.yml en VS Code.
 
-## 3. Demo en Vivo: Opción A - RAG (1.5 min)
-* **Acción:** 
-  1. Abrir VSCode y el archivo `tests/pruebas.http`.
-  2. Ejecutar la petición "1. Ingesta de Documentos".
-  3. Ejecutar la petición "2. Consultas RAG".
-  4. Abrir DBeaver/pgAdmin o la terminal de PostgreSQL (`docker exec -it postgres psql -U n8n -d n8n`) y hacer un `SELECT * FROM documentos;` y `SELECT * FROM consultas_rag;`.
-* **Guion:** "Primero, el sistema RAG. Enviamos un texto de prueba al webhook de ingesta. El texto se divide en chunks y se vectoriza en Qdrant. Luego, simulamos una pregunta sobre el texto. Ollama recupera el contexto de Qdrant y formula la respuesta. Finalmente, podemos ver en PostgreSQL cómo se han guardado tanto el documento procesado como el historial de la consulta respondida."
+Qué decir: "El sistema corre sobre Docker. Uso n8n como cerebro, Ollama con el modelo Mistral para procesar texto, Qdrant para guardar los vectores de los documentos y PostgreSQL para el historial. Todo es 100% local."
 
-## 4. Demo en Vivo: Opción B - Chatbot (1-2 min)
-* **Acción:** 
-  1. Ejecutar las 5 peticiones del apartado "PROYECTO B: CHATBOT MULTIHERRAMIENTA" en `tests/pruebas.http` (Clima, País, Wikipedia, Chiste, General).
-  2. Mostrar las respuestas de cada una.
-  3. Hacer un `SELECT * FROM historial_chatbot;` en PostgreSQL.
-* **Guion:** "Para el chatbot, Ollama analiza primero la intención de la pregunta. Aquí vemos cómo identifica que pregunto por el clima y llama a OpenMeteo. Luego pregunto por España y llama a la API de REST Countries. Lo mismo para Wikipedia y chistes. Ollama formatea todas las respuestas en lenguaje natural. Si pregunto algo general, el switch lo manda al LLM directamente. Todo queda registrado en la tabla `historial_chatbot` de PostgreSQL con su intención detectada."
+## 3. Proyecto A: Sistema RAG (1.5 min) - ¡LA PARTE CLAVE!
+Qué mostrar: El archivo pruebas.http.
 
-## 5. Workflow en n8n (1 min)
-* **Acción:** Abrir n8n (`http://localhost:5678`), mostrar los nodos del Chatbot.
-* **Guion:** "Aquí podemos ver el workflow del chatbot. Entra por Webhook, Ollama detecta la intención, el nodo Switch enruta según la palabra clave (CLIMA, PAIS, etc.) a las distintas peticiones HTTP, y finalmente usamos de nuevo Ollama para generar una respuesta natural a partir del JSON devuelto por las APIs."
+Acción 1: Lanza la Ingesta. "Primero subo una guía sobre IA. El flujo la divide en trozos y la guarda en Qdrant."
 
-## 6. Conclusiones (30 seg)
-* **Acción:** Mostrar la terminal con `docker ps` o la pantalla de commits de Git.
-* **Guion:** "La principal dificultad fue configurar correctamente los nodos de LangChain en n8n y asegurar la comunicación entre contenedores. Como mejora futura, se podrían añadir más APIs al chatbot o implementar un sistema de memoria conversacional más complejo usando WindowBufferMemory."
+Acción 2: Lanza la Consulta. "Ahora pregunto qué es RAG. Como veis, la IA me responde usando la información que acabo de subir, no de su memoria general."
+
+Acción 3: Abre la base de datos (Postgres). "Aquí en PostgreSQL vemos que se ha guardado tanto el documento procesado como la pregunta que acabo de hacer."
+
+## 4. Proyecto B: Chatbot Multiherramienta (1 min)
+Qué mostrar: El flujo del Chatbot en n8n.
+
+Acción: Lanza un par de pruebas desde pruebas.http (ej: el clima o Wikipedia).
+
+Qué decir: "El Chatbot es capaz de decidir qué herramienta usar. Si pregunto por el tiempo, llama a OpenMeteo. Si pregunto por un país, usa REST Countries. La IA recibe los datos técnicos de la API y los convierte en una frase amable para el usuario."
+
+## 5. Explicación del Workflow (1 min) - DIFERENCIADOR
+Qué mostrar: El nodo Question and Answer Chain que configuramos.
+
+Qué decir: "En n8n, he sustituido el Agente básico por una Question and Answer Chain. Esto hace que el sistema sea más fiable, obligando a Mistral a leer siempre el contexto de Qdrant antes de hablar. También he configurado nodos de PostgreSQL con parámetros limpios para asegurar que no haya errores de formato al guardar el historial."
+
+## 6. Conclusión (30 seg)
+Qué mostrar: El panel de ejecuciones de n8n (todo en verde).
+
+Qué decir: "El mayor reto fue la gestión de errores en las inserciones de base de datos, pero se solucionó ajustando las expresiones en n8n. El sistema es totalmente funcional y escalable. Gracias por su atención."
+
+---
+

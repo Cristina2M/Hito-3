@@ -11,7 +11,7 @@ Proyecto final de Automatización Inteligente del curso de 2º DAW. En este repo
 - [Cristina Moreno Martínez / Cristina2M]
 
 ## 🎥 Vídeo Demostración
-[🎬 Enlace al vídeo en YouTube aquí]
+[🎬 [Enlace al vídeo aquí](https://drive.google.com/file/d/1vSFkNCGWrUVX2MrmAvQPkkgU9dyWHINv/view?usp=sharing)]
 
 ---
 
@@ -26,6 +26,16 @@ El proyecto está compuesto por 4 grandes bloques (los contendores de Docker):
 - **Ollama:** Es el cerebro del proyecto. Nos permite descargarnos un modelo de Inteligencia Artificial (en este caso Mistral) para que se ejecute en nuestro propio ordenador, en lugar de depender de internet como hace ChatGPT.
 - **Qdrant:** Es una base de datos especial (vectorial). En vez de guardar textos o números normales, guarda "conceptos" o ideas que Ollama puede entender rápidamente.
 - **PostgreSQL:** Es una base de datos donde guardaremos un registro o "historial" escrito de todas las conversaciones y documentos que han ido pasando por nuestro asistente, para que nada se pierda.
+
+---
+
+## 📹 Pre-requisitos para la Grabación del Vídeo
+Antes de empezar a grabar, asegúrate de cumplir estos puntos para que todo salga a la primera:
+1. **Docker Encendido:** Los 4 contenedores deben estar en verde en Docker Desktop.
+2. **Modelo Cargado:** Ejecuta `docker exec -it ollama ollama pull mistral` para que la IA tenga conocimiento.
+3. **n8n Activo:** Importa los 3 flujos de `n8n/workflows/` y asegúrate de conectar las credenciales (Postgres y Qdrant).
+4. **Base de Datos Lista:** El archivo `init.sql` ya ha creado las tablas, pero comprueba que puedes hacer un `SELECT` vacío en ellas.
+5. **Capturas:** No olvides hacer capturas de tus flujos y guardarlas como `chatbot.png`, `rag-ingesta.png` y `rag-consultas.png` dentro de la carpeta `docs/capturas/`.
 
 ---
 
@@ -77,8 +87,8 @@ Funciona en dos partes o caminos separados:
 
 ### Capturas del resultado
 (Aquí van las fotos de cómo se ve el esquema final en pantalla)
-- `![Flujo Ingesta RAG](docs/capturas/rag-ingesta.png)`
-- `![Flujo Consultas RAG](docs/capturas/rag-consultas.png)`
+- ![Flujo Ingesta RAG](docs/capturas/rag-ingesta.png)
+- ![Flujo Consultas RAG](docs/capturas/rag-consultas.png)
 
 ---
 
@@ -99,7 +109,7 @@ Y como siempre, termina con un registro muy detallado escrito en nuestra base de
 
 ### Capturas del resultado
 (Aquí van las fotos de cómo se ve el esquema final en pantalla)
-- `![Flujo Chatbot](docs/capturas/chatbot.png)`
+- ![Flujo Chatbot](docs/capturas/chatbot.png)
 
 ---
 
