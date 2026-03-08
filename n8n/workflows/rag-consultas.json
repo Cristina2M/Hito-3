@@ -3,118 +3,157 @@
   "nodes": [
     {
       "parameters": {
+        "httpMethod": "POST",
         "path": "rag-consulta",
         "responseMode": "lastNode",
         "options": {}
       },
-      "id": "e6f9d342-aeea-41d8-a6d1-9cc89bdfcdbc",
+      "id": "8af42231-e51f-4732-aaf3-398a405657c2",
       "name": "Webhook Consulta",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        220,
-        300
+        64,
+        0
       ],
       "webhookId": "9e5cba89-9e87-43c3-aebe-b924eaafd210"
     },
     {
       "parameters": {
-        "model": "mistral:latest",
-        "options": {
-          "baseUrl": "http://ollama:11434"
-        }
+        "model": "mistral:latest"
       },
-      "id": "c1f1f0a2-2b6d-4952-b91c-8ffbd3264bfa",
-      "name": "Ollama Model",
-      "type": "@n8n/n8n-nodes-langchain.lmOllama",
-      "typeVersion": 1,
-      "position": [
-        460,
-        500
-      ]
-    },
-    {
-      "parameters": {
-        "text": "={{ $json.body.pregunta }}",
-        "hasOutputParser": false
-      },
-      "id": "f8h2jf3p-0a9b-8c7d-6e5f-4g3h2i1j0k9l",
-      "name": "Generador Respuestas",
-      "type": "@n8n/n8n-nodes-langchain.chainLlm",
-      "typeVersion": 1.4,
-      "position": [
-        500,
-        300
-      ]
-    },
-    {
-      "parameters": {
-        "modelName": "mistral:latest",
-        "options": {
-          "baseUrl": "http://ollama:11434"
-        }
-      },
-      "id": "d04a60b5-7c08-410a-8bf8-d21051dfcb2d",
+      "id": "540e81de-32a3-4128-a396-28877c3b5d92",
       "name": "Ollama Embeddings",
       "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
       "typeVersion": 1,
       "position": [
-        600,
-        660
-      ]
-    },
-    {
-      "parameters": {},
-      "id": "q1w2e3r4-t5y6-u7i8-o9p0-a1s2d3f4g5h6",
-      "name": "Buscador Info",
-      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
-      "typeVersion": 1,
-      "position": [
-        680,
-        500
-      ]
+        336,
+        496
+      ],
+      "credentials": {
+        "ollamaApi": {
+          "id": "qumcEnS5ouoge5CB",
+          "name": "Ollama account"
+        }
+      }
     },
     {
       "parameters": {
         "operation": "executeQuery",
         "query": "INSERT INTO consultas_rag (pregunta, respuesta) VALUES ($1, $2) RETURNING id;",
         "options": {
-          "queryParameters": "={{ $('Webhook Consulta').item.json.body.pregunta }}, {{ $json.text }}"
+          "queryReplacement": "={{ $node[\"Webhook Consulta\"].json.body.pregunta }}, {{ $json.response }}\n\n"
         }
       },
-      "id": "b3e34b99-92b0-45c1-84dc-6ba9dcedb9d1",
+      "id": "018cfdd3-9380-41df-adee-9db6e8fb3461",
       "name": "PostgreSQL Guarda Historial",
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.2,
       "position": [
-        800,
-        300
+        640,
+        32
       ],
       "credentials": {
         "postgres": {
-          "id": "postgres-local",
-          "name": "Postgres Local"
+          "id": "rna8CZX01Y3UELTZ",
+          "name": "Postgres account"
         }
       }
     },
     {
       "parameters": {
-        "collectionName": "default"
+        "qdrantCollection": {
+          "__rl": true,
+          "mode": "id",
+          "value": "documentos"
+        },
+        "options": {}
       },
-      "id": "z9x8c7v6-b5n4-m3l2-k1j0-h9g8f7d6s5a4",
+      "id": "efa761fc-3319-4a13-aa9a-dedcfc7693f9",
       "name": "Qdrant Vector Store",
       "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
       "typeVersion": 1,
       "position": [
-        640,
-        640
+        448,
+        368
       ],
       "credentials": {
         "qdrantApi": {
-          "id": "qdrant-local",
-          "name": "Qdrant Local"
+          "id": "uHdRBNIYx5ng393K",
+          "name": "QdrantApi account"
         }
       }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8ce60509-8b0d-42fb-8cfd-8533f4882424",
+              "name": "respuesta",
+              "value": "={{ $('Question and Answer Chain').item.json.response }}\n\n",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        864,
+        -16
+      ],
+      "id": "1c981213-36f6-43d8-bd49-c4b681fef40c",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "model": "mistral:latest",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        208,
+        256
+      ],
+      "id": "55347dd2-d152-43bf-94f0-44e75478818b",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "qumcEnS5ouoge5CB",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $node[\"Webhook Consulta\"].json.body.pregunta }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainRetrievalQa",
+      "typeVersion": 1.7,
+      "position": [
+        272,
+        0
+      ],
+      "id": "388981d7-7c3c-4cc6-9378-a6365c59b700",
+      "name": "Question and Answer Chain"
+    },
+    {
+      "parameters": {
+        "topK": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.retrieverVectorStore",
+      "typeVersion": 1,
+      "position": [
+        368,
+        192
+      ],
+      "id": "d90e3ab4-6aed-4c6b-ba4a-4e00b1ad86e8",
+      "name": "Vector Store Retriever"
     }
   ],
   "pinData": {},
@@ -123,41 +162,8 @@
       "main": [
         [
           {
-            "node": "Generador Respuestas",
+            "node": "Question and Answer Chain",
             "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Generador Respuestas": {
-      "main": [
-        [
-          {
-            "node": "PostgreSQL Guarda Historial",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Ollama Model": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "Generador Respuestas",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Buscador Info": {
-      "ai_tool": [
-        [
-          {
-            "node": "Generador Respuestas",
-            "type": "ai_tool",
             "index": 0
           }
         ]
@@ -167,7 +173,7 @@
       "ai_vectorStore": [
         [
           {
-            "node": "Buscador Info",
+            "node": "Vector Store Retriever",
             "type": "ai_vectorStore",
             "index": 0
           }
@@ -184,16 +190,62 @@
           }
         ]
       ]
+    },
+    "PostgreSQL Guarda Historial": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Question and Answer Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Question and Answer Chain": {
+      "main": [
+        [
+          {
+            "node": "PostgreSQL Guarda Historial",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vector Store Retriever": {
+      "ai_retriever": [
+        [
+          {
+            "node": "Question and Answer Chain",
+            "type": "ai_retriever",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "availableInMCP": false
   },
-  "versionId": "f0fe1e5c-755d-4f18-a681-3c5b8b9ca212",
+  "versionId": "a0ff4c62-d458-4e63-b615-c47b0d8d0219",
   "meta": {
-    "templateCredsSetupCompleted": true
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2b0ba9517386fc065badce01d4f7ee958c3a2569e89f1d74e255e51b90465088"
   },
-  "id": "aax52eueyE21N0O7",
+  "id": "9DHdDVLZ2Mqatt5sJY0dk",
   "tags": []
 }

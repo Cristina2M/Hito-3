@@ -3,180 +3,148 @@
   "nodes": [
     {
       "parameters": {
+        "httpMethod": "POST",
         "path": "rag-ingesta",
         "responseMode": "lastNode",
         "options": {}
       },
-      "id": "e6f9d342-aeea-41d8-a6d1-9cc89bdfcdbc",
+      "id": "d8521060-bb95-456a-b195-e4d341243cf6",
       "name": "Webhook Ingesta",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        220,
-        300
+        224,
+        16
       ],
       "webhookId": "9e5cba89-9e87-43c3-aebe-b924eaafd225"
     },
     {
       "parameters": {
-        "model": "mistral:latest",
-        "options": {
-          "baseUrl": "http://ollama:11434"
-        }
-      },
-      "id": "c1f1f0a2-2b6d-4952-b91c-8ffbd3264bfa",
-      "name": "Ollama Model",
-      "type": "@n8n/n8n-nodes-langchain.lmOllama",
-      "typeVersion": 1,
-      "position": [
-        900,
-        500
-      ]
-    },
-    {
-      "parameters": {
-        "operation": "insert",
+        "mode": "insert",
+        "qdrantCollection": {
+          "__rl": true,
+          "mode": "list",
+          "value": "documentos"
+        },
         "options": {}
       },
-      "id": "e96c6414-b81b-4fd6-95f7-f0eb6841398c",
+      "id": "8d7e71ae-ccf1-427f-b23c-afffefa5cd49",
       "name": "Qdrant Vector Store",
       "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
       "typeVersion": 1,
       "position": [
-        800,
-        300
+        496,
+        0
       ],
       "credentials": {
         "qdrantApi": {
-          "id": "qdrant-local",
-          "name": "Qdrant Local"
+          "id": "uHdRBNIYx5ng393K",
+          "name": "QdrantApi account"
         }
       }
     },
     {
       "parameters": {
-        "modelName": "mistral:latest",
-        "options": {
-          "baseUrl": "http://ollama:11434"
-        }
+        "model": "mistral:latest"
       },
-      "id": "d04a60b5-7c08-410a-8bf8-d21051dfcb2d",
+      "id": "0d0c2a94-e1d1-4722-ae86-17bae673c293",
       "name": "Ollama Embeddings",
       "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
       "typeVersion": 1,
       "position": [
-        800,
-        480
-      ]
+        400,
+        160
+      ],
+      "credentials": {
+        "ollamaApi": {
+          "id": "qumcEnS5ouoge5CB",
+          "name": "Ollama account"
+        }
+      }
     },
     {
       "parameters": {
         "operation": "executeQuery",
         "query": "INSERT INTO documentos (nombre, ruta_archivo, num_chunks, fecha_procesado) VALUES ($1, $2, $3, NOW()) RETURNING id;",
         "options": {
-          "queryParameters": "={{ $('Webhook Ingesta').item.json.body.nombre_documento }}, {{ $('Webhook Ingesta').item.json.body.nombre_documento }}, 1"
+          "queryReplacement": "={{ $('Webhook Ingesta').item.json.body.nombre_documento }},upload,1\n"
         }
       },
-      "id": "b3e34b99-92b0-45c1-84dc-6ba9dcedb9d1",
+      "id": "85612237-f84c-4599-8aec-1620a45686f3",
       "name": "PostgreSQL Guarda Metadata",
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.2,
       "position": [
-        1060,
-        300
+        816,
+        -16
       ],
       "credentials": {
         "postgres": {
-          "id": "postgres-local",
-          "name": "Postgres Local"
+          "id": "rna8CZX01Y3UELTZ",
+          "name": "Postgres account"
         }
       }
     },
     {
       "parameters": {
         "chunkSize": 500,
-        "chunkOverlap": 50
+        "chunkOverlap": 50,
+        "options": {}
       },
-      "id": "aa150a01-b3b3-4f93-80f4-522194d2f0eb",
+      "id": "61c48bb9-487a-49ec-a18f-f58f72a54233",
       "name": "Recursive Character Text Splitter",
       "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
       "typeVersion": 1,
       "position": [
         560,
-        460
+        320
       ]
     },
     {
       "parameters": {
         "options": {}
       },
-      "id": "f5127d14-b8eb-4eec-b5c3-a30e8c4e4b52",
+      "id": "ffd2c7ce-6a98-4b38-8f1b-dc95d1f071ef",
       "name": "Default Data Loader",
       "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
       "typeVersion": 1,
       "position": [
         560,
-        300
+        160
       ]
     },
     {
       "parameters": {
-        "keepOnlySet": true,
-        "values": {
-          "string": [
+        "assignments": {
+          "assignments": [
             {
+              "id": "f38cfcae-80cb-407b-8ded-4622671d62fd",
               "name": "status",
-              "value": "Ingesta a Qdrant completada y metadata en Postgres creada!"
+              "value": "success",
+              "type": "string"
+            },
+            {
+              "id": "61ca92f7-8d40-428e-bc1c-19c94ce90f96",
+              "name": "mensaje",
+              "value": "Documento procesado correctamente",
+              "type": "string"
             }
           ]
         },
         "options": {}
       },
-      "id": "2eaf2ed2-e30d-4bed-8149-dd32ff98006b",
+      "id": "a6a07bb6-7921-431f-9614-6c5118b6f69a",
       "name": "Respuesta Exitosa",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1280,
-        300
+        992,
+        32
       ]
     }
   ],
   "pinData": {},
   "connections": {
-    "Webhook Ingesta": {
-      "main": [
-        [
-          {
-            "node": "Default Data Loader",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Default Data Loader": {
-      "main": [
-        [
-          {
-            "node": "Qdrant Vector Store",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Qdrant Vector Store": {
-      "main": [
-        [
-          {
-            "node": "PostgreSQL Guarda Metadata",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "PostgreSQL Guarda Metadata": {
       "main": [
         [
@@ -209,16 +177,51 @@
           }
         ]
       ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qdrant Vector Store": {
+      "main": [
+        [
+          {
+            "node": "PostgreSQL Guarda Metadata",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Ingesta": {
+      "main": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "availableInMCP": false
   },
-  "versionId": "f0fe1e5c-755d-4f18-a681-3c5b8b9cb026",
+  "versionId": "02027400-e88c-4b9e-bcff-9543dfebc3a2",
   "meta": {
-    "templateCredsSetupCompleted": true
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2b0ba9517386fc065badce01d4f7ee958c3a2569e89f1d74e255e51b90465088"
   },
-  "id": "xax52eueyE21N0O7",
+  "id": "g-MuVjQFPP15y2fRWmIVd",
   "tags": []
 }

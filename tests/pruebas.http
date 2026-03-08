@@ -4,6 +4,8 @@
 
 # Guardo la URL del webhook de mi n8n local en una variable para no repetirla en cada bloque
 @n8n_webhook_url = http://localhost:5678/webhook
+# @n8n_webhook_url = http://localhost:5678/webhook-test
+
 
 ### =========================================================================
 ### PROYECTO A: SISTEMA RAG EDUCATIVO
